@@ -1,12 +1,14 @@
 # mesos-edge
 
+![Tested](https://img.shields.io/badge/tested%20with-docker--compose%201.27.4%20-green)
+
 ## How to deploy
 
 ### Requirements
 
 1. docker engine and compose installed
-2. IAM client
-2. SSL host certificate
+2. Client registered in IAM
+2. SSL host certificate available
 
 ### Step 0: Download this repo
 
@@ -18,6 +20,8 @@ cd mesos-edge
 ### Step 1: Configuration
 
 1. Copy the host certificate and private key in the `conf/certs` directory
+
+> :warning: the filename of the files *must* be: `cert.pem` for the certificate and `privkey.pem` for the private key
 
 2. Edit the enviroment variables file `conf/env` and provide the needed parameter values:
 
@@ -72,3 +76,17 @@ docker-compose build
 docker-compose up -d
 ````
 
+The expected output is the following:
+
+````
+docker-compose ps
+          Name                        Command               State   Ports
+-------------------------------------------------------------------------
+mesos-edge_chronos_1       /entrypoint.sh                   Up
+mesos-edge_marathon_1      /entrypoint.sh marathon          Up
+mesos-edge_marathon_lb_1   tini -g -- /marathon-lb/ru ...   Up
+mesos-edge_mesosmaster_1   /entrypoint.sh /usr/sbin/m ...   Up
+mesos-edge_mesosslave_1    /entrypoint.sh /usr/sbin/m ...   Up
+mesos-edge_proxy_1         httpd-foreground                 Up
+mesos-edge_zookeeper_1     /entrypoint.sh /usr/share/ ...   Up
+````
