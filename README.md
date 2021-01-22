@@ -1,1 +1,74 @@
 # mesos-edge
+
+## How to deploy
+
+### Requirements
+
+1. docker engine and compose installed
+2. IAM client
+2. SSL host certificate
+
+### Step 0: Download this repo
+
+````
+git clone https://github.com/iotwins-demo/mesos-edge.git
+cd mesos-edge
+````
+
+### Step 1: Configuration
+
+1. Copy the host certificate and private key in the `conf/certs` directory
+
+2. Edit the enviroment variables file `conf/env` and provide the needed parameter values:
+
+````
+# Provide proper values for the following environment variables
+
+# Set the dns name of the host
+export SERVER_NAME=
+
+# Set the url of the IAM and the id and secret of the client to be used
+export IAM_URL=
+export IAM_CLIENT_ID=
+export IAM_CLIENT_SECRET=
+
+# Set a password for crypto purposes, this is used for:
+# - encryption of the (temporary) state cookie
+# - encryption of cache entries, that may include the session cookie
+export CRYPTO_PASSPHRASE=
+
+# Set the IP of the host where the services are running
+export DOCKER_HOST_IP=
+
+# You can leave the following line as is
+export HAPROXY_SSL_CERT=$(cat conf/certs/cert.pem conf/certs/privkey.pem)
+````
+
+3. Load the environment variables
+
+````
+source ./conf/env
+````
+
+4. Create the apache openidc configuration file launching the following `envsubst` command:
+
+> :warning: if `envsubst` command is not found you may have to install the package `gettext-base`
+
+````
+envsubst < conf/httpd-openidc.conf.template > conf/httpd-openidc.conf
+````
+
+
+### Step 2: Build
+
+````
+docker-compose build
+````
+
+
+### Step 3: Start services
+
+````
+docker-compose up -d
+````
+
