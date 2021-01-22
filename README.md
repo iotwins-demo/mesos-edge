@@ -7,7 +7,7 @@
 ### Requirements
 
 1. docker engine and compose installed
-2. Client registered in IAM
+2. Client registered in IAM with at least the following scopes: openid, profile, email
 2. SSL host certificate available
 
 ### Step 0: Download this repo
