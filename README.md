@@ -93,10 +93,15 @@ mesos-edge_zookeeper_1     /entrypoint.sh /usr/share/ ...   Up
 
 ## Endpoints
 
+The following table shows the list of services and endpoints that are deployed on the host. The ports marked as `Internal` should be kept closed to the external world, whereas those marked as `External` must be open to outside.
+
 | Service  | Port |  Network rule |
 | ------------- | ------------- | -----------| 
 | Mesos  | master: 5050 (http) <br> nodes: 50501 (http)  | Internal |
 | Marathon  | 8080 (http)  | Internal |
 | Chronos | 4040 (http) | Internal |
-| Apache reverse proxy with OIDC Auth | 443 (https) | External |
-| Marathon-LB | 10000-10100 | External |
+| Apache reverse proxy with OIDC Auth | 443 (https) | External (*) |
+| Marathon-LB | 10000-10100 | External (**) |
+
+(*) this endpoint is used by the PaaS Orchestrator to submit tasks via REST APIs. The requests are authenticated through IAM tokens
+(**) this endpoint is used to expose the services deployed on Marathon. 
