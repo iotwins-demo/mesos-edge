@@ -90,3 +90,13 @@ mesos-edge_mesosslave_1    /entrypoint.sh /usr/sbin/m ...   Up
 mesos-edge_proxy_1         httpd-foreground                 Up
 mesos-edge_zookeeper_1     /entrypoint.sh /usr/share/ ...   Up
 ````
+
+## Endpoints
+
+| Service  | Port |  Network rule |
+| ------------- | ------------- | -----------| 
+| Mesos  | master: 5050 (http) <br> nodes: 50501 (http)  | Internal |
+| Marathon  | 8080 (http)  | Internal |
+| Chronos | 4040 (http) | Internal |
+| Apache reverse proxy with OIDC Auth | 443 (https) | External |
+| Marathon-LB | 10000-10100 | External |
