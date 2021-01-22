@@ -104,4 +104,5 @@ The following table shows the list of services and endpoints that are deployed o
 | Marathon-LB | 10000-10100 | External (**) |
 
 (*) this endpoint is used by the PaaS Orchestrator to submit tasks via REST APIs. The requests are authenticated through IAM tokens
+
 (**) this endpoint is used to expose the services deployed on Marathon. 
