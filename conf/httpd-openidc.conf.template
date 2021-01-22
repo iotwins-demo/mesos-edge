@@ -1,0 +1,65 @@
+Listen 443
+ServerName $SERVER_NAME
+
+<VirtualHost *:443>
+  ServerName $SERVER_NAME
+  LoadModule ssl_module modules/mod_ssl.so
+  LoadModule proxy_module modules/mod_proxy.so
+  LoadModule proxy_http_module modules/mod_proxy_http.so
+  LoadModule auth_openidc_module modules/mod_auth_openidc.so
+
+  OIDCClaimPrefix                  OIDC
+  OIDCResponseType                 code
+  OIDCScope                        "openid email profile"
+  OIDCProviderMetadataURL          $IAM_URL/.well-known/openid-configuration
+  OIDCOAuthVerifyJwksUri           $IAM_URL/jwk 
+  OIDCClientID                     $IAM_CLIENT_ID
+  OIDCClientSecret                 $IAM_CLIENT_SECRET
+  OIDCProviderTokenEndpointAuth    client_secret_basic
+  OIDCCryptoPassphrase             $CRYPTO_PASSPHRASE
+  OIDCRedirectURI                  https://$SERVER_NAME/mesos
+  
+  <Location /mesos>
+    AuthType oauth20
+    Require valid-user
+    LogLevel debug
+  </Location>
+
+  <Location /marathon>
+    AuthType oauth20
+    Require valid-user
+    LogLevel debug
+  </Location> 
+
+  <Location /chronos>
+    AuthType oauth20
+    Require valid-user
+    LogLevel debug
+  </Location>
+  
+  
+  ProxyRequests On
+  ProxyPreserveHost On
+  
+  ProxyPass /mesos/ http://$DOCKER_HOST_IP:5050/
+  ProxyPassReverse /mesos/ http://$DOCKER_HOST_IP:5050/
+  
+  ProxyPass /marathon/ http://$DOCKER_HOST_IP:8080/
+  ProxyPassReverse /marathon/ http://$DOCKER_HOST_IP:8080/
+  
+  ProxyPass /chronos/ http://$DOCKER_HOST_IP:4400/
+  ProxyPassReverse /chronos/ http://$DOCKER_HOST_IP:4400/
+
+
+  ## Logging
+  ErrorLog "/var/log/apache2/proxy_mesos_error_ssl.log"
+  ServerSignature Off
+  CustomLog "/var/log/apache2/proxy_mesos_access_ssl.log" combined
+
+  ## SSL directives
+
+  SSLProxyEngine on
+  SSLEngine on
+  SSLCertificateFile          cert.pem
+  SSLCertificateKeyFile       privkey.pem
+</VirtualHost>

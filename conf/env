@@ -1,0 +1,20 @@
+# Provide proper values for the following environment variables 
+
+# Set the dns name of the host
+export SERVER_NAME=
+
+# Set the url of the IAM and the id and secret of the client to be used
+export IAM_URL=
+export IAM_CLIENT_ID=
+export IAM_CLIENT_SECRET=
+
+# Set a password for crypto purposes, this is used for:
+# - encryption of the (temporary) state cookie
+# - encryption of cache entries, that may include the session cookie
+export CRYPTO_PASSPHRASE=
+
+# Set the IP of the host where the services are running
+export DOCKER_HOST_IP=
+
+# You can leave the following line as is
+export HAPROXY_SSL_CERT=$(cat conf/certs/cert.pem conf/certs/privkey.pem)
