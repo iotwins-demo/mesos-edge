@@ -97,9 +97,9 @@ The following table shows the list of services and endpoints that are deployed o
 
 | Service  | Port |  Network rule |
 | ------------- | ------------- | -----------| 
-| Mesos  | master: 5050 (http) <br> nodes: 50501 (http)  | Internal |
+| Mesos  | master: 5050 (http) <br> nodes: 5051 (http)  | Internal |
 | Marathon  | 8080 (http)  | Internal |
-| Chronos | 4040 (http) | Internal |
+| Chronos | 4400 (http) | Internal |
 | Apache reverse proxy with OIDC Auth | 443 (https) | External (*) |
 | Marathon-LB | 10000-10100 | External (**) |
 
