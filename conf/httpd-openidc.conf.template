@@ -41,14 +41,14 @@ ServerName $SERVER_NAME
   ProxyRequests On
   ProxyPreserveHost On
   
-  ProxyPass /mesos/ http://$DOCKER_HOST_IP:5050/
-  ProxyPassReverse /mesos/ http://$DOCKER_HOST_IP:5050/
+  ProxyPass /mesos/ http://mesos:5050/
+  ProxyPassReverse /mesos/ http://mesos:5050/
   
-  ProxyPass /marathon/ http://$DOCKER_HOST_IP:8080/
-  ProxyPassReverse /marathon/ http://$DOCKER_HOST_IP:8080/
+  ProxyPass /marathon/ http://marathon:8080/
+  ProxyPassReverse /marathon/ http://marathon:8080/
   
-  ProxyPass /chronos/ http://$DOCKER_HOST_IP:4400/
-  ProxyPassReverse /chronos/ http://$DOCKER_HOST_IP:4400/
+  ProxyPass /chronos/ http://chronos:4400/
+  ProxyPassReverse /chronos/ http://chronos:4400/
 
 
   ## Logging

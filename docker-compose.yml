@@ -3,36 +3,42 @@ version: '3.7'
 services:
   zookeeper:
     image: indigodatacloud/zookeeper
-    network_mode: host
+    expose:
+      - 2181
     environment:
       - MYID=1
       - SERVERS=localhost
+    volumes:
+      - ./var/log/zookeeper:/var/log/zookeeper
+      - ./var/lib/zookeeper:/var/lib/zookeeper    
   mesosmaster:
     image: indigodatacloud/mesos-master:1.9.0
-    network_mode: host
+    ports:
+      - 5050:5050
     environment:
-      - MESOS_HOSTNAME=mesosmaster
+      - MESOS_HOSTNAME=${DOCKER_HOST_IP}
       - MESOS_CLUSTER=Mesos
-      - MESOS_ZK=zk://127.0.0.1:2181/mesos
+      - MESOS_ZK=zk://zookeeper:2181/mesos
       - MESOS_LOG_DIR=/var/log/mesos
       - MESOS_QUORUM=1
       - MESOS_WORK_DIR=/var/lib/mesos
       - MESOS_OFFER_TIMEOUT=30secs
     volumes:
-      - ./var/log/mesos:/var/log/mesos      
+      - ./var/log/mesos:/var/log/mesos
+      - ./var/lib/mesos:/var/lib/mesos        
     depends_on:
       - zookeeper
   mesosslave:
     image: indigodatacloud/mesos-slave:1.9.0
-    network_mode: host
+    ports:
+      - 5051:5051
     pid: host
     privileged: true
     environment:
-      MESOS_MASTER: zk://127.0.0.1:2181/mesos
+      MESOS_MASTER: zk://zookeeper:2181/mesos
       MESOS_CONTAINERIZERS: docker,mesos
       MESOS_PORT: 5051
       MESOS_RESOURCES: ports(*):[11000-11999]
-      LIBPROCESS_IP: ${DOCKER_HOST_IP}
       MESOS_WORK_DIR: /tmp/mesos
       MESOS_HOSTNAME: ${DOCKER_HOST_IP}
     volumes:
@@ -45,12 +51,13 @@ services:
       - mesosmaster
   chronos:
     image: indigodatacloud/chronos:3.0.2_gpu
-    network_mode: host
+    ports:
+      - 4400:4400    
     environment:
-      - CHRONOS_HOSTNAME=chronos
+      - CHRONOS_HOSTNAME=${DOCKER_HOST_IP}
       - CHRONOS_HTTP_PORT=4400
-      - CHRONOS_MASTER=zk://127.0.0.1:2181/mesos
-      - CHRONOS_ZK_HOSTS=zk://127.0.0.1:2181
+      - CHRONOS_MASTER=zk://zookeeper:2181/mesos
+      - CHRONOS_ZK_HOSTS=zk://zookeeper:2181
       - CHRONOS_ZK_PATH=/chronos/state
       - CHRONOS_MESOS_FRAMEWORK_NAME=chronos
     depends_on:
@@ -59,12 +66,13 @@ services:
 
   marathon:
     image: indigodatacloud/marathon:1.5.6
-    network_mode: host
+    ports:
+      - 8080:8080    
     environment:
-      - MARATHON_HOSTNAME=marathon
+      - MARATHON_HOSTNAME=${DOCKER_HOST_IP}
       - MARATHON_HTTP_PORT=8080
-      - MARATHON_MASTER=zk://127.0.0.1:2181/mesos
-      - MARATHON_ZK=zk://127.0.0.1:2181/marathon
+      - MARATHON_MASTER=zk://zookeeper:2181/mesos
+      - MARATHON_ZK=zk://zookeeper:2181/marathon
       - MARATHON_FRAMEWORK_NAME=marathon
     depends_on:
       - zookeeper
@@ -72,18 +80,25 @@ services:
   
   marathon_lb:      
     image: mesosphere/marathon-lb:v1.14.1
-    command: sse --marathon http://127.0.0.1:8080 --group external --dont-bind-http-https
-    network_mode: host
+    command: sse --marathon http://marathon:8080 --group external --dont-bind-http-https
+    ports:
+      - "10000-10100:10000-10100"      
     environment:
       - HAPROXY_SSL_CERT=${HAPROXY_SSL_CERT}        
       - PORTS=9090   
     depends_on:
       - marathon        
+        
   proxy:
     build: ./proxy       
     image: httpd:oidc
-    network_mode: host
+    ports:
+      - 443:443        
     volumes:    
       - ./conf/httpd-openidc.conf:/usr/local/apache2/conf/extra/httpd-openidc.conf 
       - ./conf/certs/cert.pem:/usr/local/apache2/cert.pem 
       - ./conf/certs/privkey.pem:/usr/local/apache2/privkey.pem         
+    depends_on:
+      - mesos
+      - marathon
+      - chronos  
